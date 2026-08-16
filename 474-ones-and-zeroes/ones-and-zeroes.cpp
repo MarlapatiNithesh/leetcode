@@ -11,25 +11,32 @@ public:
             cnt.push_back({cnt0,cnt1});
         }
 
-        vector<vector<vector<int>>>dp(strs.size(),vector<vector<int>>(m+1,vector<int>(n+1,-1)));
+        int sz=strs.size();
+        vector<vector<vector<int>>>dp(sz,vector<vector<int>>(m+1,vector<int>(n+1,0)));
 
-        auto dfs=[&](auto& self,int idx,int m1,int n1)->int{
-            if(idx>=strs.size())return 0;
-            if(dp[idx][m1][n1]!=-1)return dp[idx][m1][n1];
-
-            int cnt0=cnt[idx].first,cnt1=cnt[idx].second;
-            int take=0,notTake=0;
-
-
-            if(m1>=cnt0&&n1>=cnt1){
-                take=1+self(self,idx+1,m1-cnt0,n1-cnt1);
+        int cnt0=cnt[0].first,cnt1=cnt[0].second;
+        for(int m1=cnt0;m1<=m;m1++){
+            for(int n1=cnt1;n1<=n;n1++){
+                dp[0][m1][n1]=1;
             }
-            notTake=self(self,idx+1,m1,n1);
+        }
 
+        for(int i=1;i<sz;i++){
+            cnt0=cnt[i].first;
+            cnt1=cnt[i].second;
 
-            return dp[idx][m1][n1]=max(take,notTake);
-        };
+            for(int m1=0;m1<=m;m1++){
+                for(int n1=0;n1<=n;n1++){
+                    dp[i][m1][n1]=dp[i-1][m1][n1];
 
-        return dfs(dfs,0,m,n);
+                    if(m1>=cnt0&&n1>=cnt1){
+                        dp[i][m1][n1]=max(dp[i][m1][n1],
+                            1+dp[i-1][m1-cnt0][n1-cnt1]);
+                    }
+                }
+            }
+        }
+
+        return dp[sz-1][m][n];
     }
 };
