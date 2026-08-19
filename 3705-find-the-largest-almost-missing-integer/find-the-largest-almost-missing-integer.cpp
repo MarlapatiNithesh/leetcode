@@ -1,29 +1,22 @@
 class Solution {
 public:
-    int largestInteger(vector<int>& nums, int k) {
-        int n = nums.size();
-        if (n == k) {
-            return *max_element(nums.begin(), nums.end());
+    int largestInteger(vector<int>& nums,int k) {
+        int n=nums.size();
+        if(k==n){
+            int mx=*max_element(nums.begin(),nums.end());
+            return mx;
         }
-        int count[51] = {0};
-        for (int x : nums) {
-            count[x]++;
-        }
-        if (k == 1) {
-            for (int i = 50; i >= 0; --i) {
-                if (count[i] == 1) {
-                    return i;
-                }
+        map<int,int>mp;
+        for(int i=0;i<=n-k;i++){
+            for(int j=i;j<i+k;j++){
+                mp[nums[j]]++;
             }
-            return -1;
         }
-        int res = -1;
-        if (count[nums[0]] == 1) {
-            res = max(res, nums[0]);
+
+        int ans=-1;
+        for(auto it:mp){
+            if(it.second==1)ans=max(ans,it.first);
         }
-        if (count[nums.back()] == 1) {
-            res = max(res, nums.back());
-        }
-        return res;
+        return ans==-1?-1:ans;
     }
 };
