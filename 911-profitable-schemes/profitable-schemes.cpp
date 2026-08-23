@@ -2,45 +2,38 @@ class Solution {
 public:  
     static const int MOD = 1e9 + 7;  
 
-    struct custom_hash { 
-        size_t operator()(const tuple<int,int,int>& t) const { 
-            auto [a,b,c] = t; 
-            size_t h1 = hash<int>{}(a); 
-            size_t h2 = hash<int>{}(b); 
-            size_t h3 = hash<int>{}(c); 
-            return h1 ^ (h2 << 1) ^ (h3 << 2); 
-        } 
-    }; 
-
     int profitableSchemes(int n, int minProfit, vector<int>& group, vector<int>& profit) {  
-        int m = group.size(); 
+        int m = group.size();  
 
-        int dp[101][101][101];
-        memset(dp, -1, sizeof(dp));
+        int M = n + 1;
+        int P = minProfit + 1;
 
-        auto dfs = [&](auto& self, int idx, int mem, int pr) -> int {  
+        vector<int> dp(M * P, 0);
 
-            if(idx >= m) {  
-                return pr >= minProfit;  
-            } 
+        auto get = [&](int mem, int pr) -> int& {
+            return dp[mem * P + pr];
+        };
 
-            if(dp[idx][mem][pr] != -1) 
-                return dp[idx][mem][pr];
+        get(0, 0) = 1;
 
-            int ans = 0;  
+        for(int i = 0; i < m; i++) {
+            for(int mem = n; mem >= group[i]; mem--) {
+                for(int pr = minProfit; pr >= 0; pr--) {
 
-            if(mem + group[idx] <= n) {  
-                int npr = min(minProfit, pr + profit[idx]); 
+                    int npr = min(minProfit, pr + profit[i]);
 
-                ans = (ans + self(self, idx + 1, 
-                                  mem + group[idx], npr)) % MOD;  
-            }  
+                    get(mem, npr) = 
+                        (get(mem, npr) + get(mem - group[i], pr)) % MOD;
+                }
+            }
+        }
 
-            ans = (ans + self(self, idx + 1, mem, pr)) % MOD;  
+        int ans = 0;
 
-            return dp[idx][mem][pr] = ans;  
-        };  
+        for(int mem = 0; mem <= n; mem++) {
+            ans = (ans + get(mem, minProfit)) % MOD;
+        }
 
-        return dfs(dfs, 0, 0, 0);  
+        return ans;
     }  
 };
