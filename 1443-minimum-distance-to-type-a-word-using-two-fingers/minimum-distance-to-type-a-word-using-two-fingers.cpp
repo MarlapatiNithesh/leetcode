@@ -13,8 +13,8 @@ public:
     int minimumDistance(string word){
         init();
 
-        int dp[301][27][27];
-        memset(dp,-1,sizeof(dp));
+        int dp[302][27][27];
+        memset(dp,0,sizeof(dp));
 
         int n=word.size();
 
@@ -36,44 +36,44 @@ public:
             return {x,y};
         };
 
-        auto dfs=[&](auto& slef,int idx,int prev1,int prev2)->int{
-            if(idx>=n)return 0;
+        for(int idx=n-1;idx>=0;idx--){
+            auto it=getIdxs(word[idx]-'A');
 
-            if(dp[idx][prev1+1][prev2+1]!=-1)
-                return dp[idx][prev1+1][prev2+1];
+            for(int prev1=-1;prev1<26;prev1++){
+                for(int prev2=-1;prev2<26;prev2++){
 
-            int tt1=INT_MAX,tt2=INT_MAX;
+                    int tt1=INT_MAX,tt2=INT_MAX;
 
-            if(prev1==-1){
-                tt1=slef(slef,idx+1,word[idx]-'A',prev2);
+                    if(prev1==-1){
+                        tt1=dp[idx+1][word[idx]-'A'+1][prev2+1];
+                    }
+
+                    if(prev1!=-1 && prev2==-1){
+                        auto it1=getIdxs(prev1);
+
+                        tt1=abs(it.first-it1.first)+abs(it.second-it1.second)
+                            +dp[idx+1][word[idx]-'A'+1][prev2+1];
+
+                        tt2=dp[idx+1][prev1+1][word[idx]-'A'+1];
+                    }
+
+                    if(prev1!=-1 && prev2!=-1){
+                        auto it1=getIdxs(prev1);
+                        auto it2=getIdxs(prev2);
+
+                        tt1=abs(it.first-it1.first)+abs(it.second-it1.second)
+                            +dp[idx+1][word[idx]-'A'+1][prev2+1];
+
+                        tt2=abs(it.first-it2.first)+abs(it.second-it2.second)
+                            +dp[idx+1][prev1+1][word[idx]-'A'+1];
+                    }
+
+                    dp[idx][prev1+1][prev2+1]=min(tt1,tt2);
+                }
             }
+        }
 
-            if(prev1!=-1 && prev2==-1){
-                auto it=getIdxs(word[idx]-'A');
-                auto it1=getIdxs(prev1);
-
-                tt1=abs(it.first-it1.first)+abs(it.second-it1.second)
-                    +slef(slef,idx+1,word[idx]-'A',prev2);
-
-                tt2=slef(slef,idx+1,prev1,word[idx]-'A');
-            }
-
-            if(prev1!=-1 && prev2!=-1){
-                auto it=getIdxs(word[idx]-'A');
-                auto it1=getIdxs(prev1);
-                auto it2=getIdxs(prev2);
-
-                tt1=abs(it.first-it1.first)+abs(it.second-it1.second)
-                    +slef(slef,idx+1,word[idx]-'A',prev2);
-
-                tt2=abs(it.first-it2.first)+abs(it.second-it2.second)
-                    +slef(slef,idx+1,prev1,word[idx]-'A');
-            }
-
-            return dp[idx][prev1+1][prev2+1]=min(tt1,tt2);
-        };
-
-        return dfs(dfs,0,-1,-1);
+        return dp[0][0][0];
     }
 };
 
