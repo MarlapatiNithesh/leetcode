@@ -1,37 +1,67 @@
 class Solution {
 public:
-    int n;
-    int m;
-    int dp[12][1 << 13];
-    int f(int i, int mask, vector<vector<int>>& cost) {
-        if (i == n && (mask == (1 << m) - 1))
-            return 0;
-        
-        if (i == n) {
-            int ans = 0;
-            for (int j = 0; j < m; j++) {
-                if ((mask & (1 << j)) == 0) {
-                    int mn = INT_MAX;
+    int connectTwoGroups(vector<vector<int>>& cost) {
+        int n = cost.size();
+        int m = cost[0].size();
 
-                    for (int k = 0; k < n; k++)
-                        mn = min(mn, cost[k][j]);
+        int M = 1 << m;
 
-                    ans += mn;
+        // dp[mask] = minimum cost after processing some rows
+        // and the connected columns are represented by mask
+        vector<int> dp(M, INT_MAX);
+
+        dp[0] = 0;
+
+        for (int i = 0; i < n; i++) {
+            vector<int> ndp(M, INT_MAX);
+
+            for (int mask = 0; mask < M; mask++) {
+
+                if (dp[mask] == INT_MAX)
+                    continue;
+
+                for (int j = 0; j < m; j++) {
+
+                    int nmask = mask | (1 << j);
+
+                    ndp[nmask] = min(
+                        ndp[nmask],
+                        dp[mask] + cost[i][j]
+                    );
                 }
             }
-            return ans;
+
+            dp = ndp;
         }
-        if(dp[i][mask]!=-1)return dp[i][mask];
-        int cnt = INT_MAX;
-        for (int j = 0; j < m; j++) {
-            cnt = min(cnt, cost[i][j] + f(i + 1, mask | (1 << j), cost));
+
+        // Now all rows are connected.
+        // Connect every column which is still unconnected.
+        int ans = INT_MAX;
+
+        for (int mask = 0; mask < M; mask++) {
+
+            if (dp[mask] == INT_MAX)
+                continue;
+
+            int cur = dp[mask];
+
+            for (int j = 0; j < m; j++) {
+
+                if ((mask & (1 << j)) == 0) {
+
+                    int mn = INT_MAX;
+
+                    for (int k = 0; k < n; k++) {
+                        mn = min(mn, cost[k][j]);
+                    }
+
+                    cur += mn;
+                }
+            }
+
+            ans = min(ans, cur);
         }
-        return dp[i][mask] = cnt;
-    }
-    int connectTwoGroups(vector<vector<int>>& cost) {
-        n = cost.size();
-        m = cost[0].size();
-        memset(dp, -1, sizeof(dp));
-        return f(0, 0, cost);
+
+        return ans;
     }
 };
