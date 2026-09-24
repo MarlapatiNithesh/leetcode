@@ -27,7 +27,7 @@ public:
         dfs(dfs, 0, -1);
 
         if(dep[target] > t) return 0.0;
-        if(dep[target] < t && ch[target] > 0) return 0.0;
+        if(dep[target] < t && ch[target]>0) return 0.0;
 
         double ans = 1.0;
         while(par[target] != -1){
