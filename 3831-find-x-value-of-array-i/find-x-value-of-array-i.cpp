@@ -1,43 +1,38 @@
-class Solution {
-public:
-    using ll = long long;
+class Solution { 
+public: 
+    vector<long long> resultArray(vector<int>& nums, int k) { 
+        int n=nums.size(); 
 
-    int n;
+        for(int i=0;i<n;i++){ 
+            nums[i]%=k; 
+        } 
 
-    ll solve(int i, int prevProd, int req, int k, auto& nums, auto& dp) {
+        vector<long long>ans(k,0); 
 
-        if(i >= nums.size()) return 0;
-        if(dp[i][prevProd] != -1) return dp[i][prevProd];
+        for(int target=0;target<k;target++){ 
+            vector<vector<long long>>dp(n,vector<long long>(k,-1)); 
 
-        ll skip = 0, take = 0;
+            auto dfs=[&](auto& slef,int idx,int pd)->long long{ 
+                if(idx>=n)return 0; 
 
-        // Skip current element (only if no subarray started yet)
-        if(prevProd == k){
-            skip = solve(i + 1, k, req, k, nums, dp);
-        }
+                if(dp[idx][pd]!=-1)return dp[idx][pd]; 
 
-        // Take current element
-        ll curProd;
-        if(prevProd == k) curProd = nums[i]; // started from cur num
-        else curProd = (prevProd * nums[i]) % k; // extending forward
+                int nwpd=(1LL*pd*nums[idx])%k; 
 
-        take += (curProd == req);
-        take += solve(i + 1, curProd, req, k, nums, dp);
+                long long ans=0; 
 
-        return dp[i][prevProd] = take + skip;
-    }
+                if(nwpd==target)ans++; 
 
-    vector<ll> resultArray(vector<int>& nums, int k) {
-        n = nums.size();
-        vector<ll> res(k, 0);
+                ans+=slef(slef,idx+1,nwpd); 
 
-        for(int& num : nums) num %= k;
+                return dp[idx][pd]=ans; 
+            }; 
 
-        for(int r = 0; r < k; r++){
-            vector<vector<ll>> dp(n, vector<ll>(k + 1, -1));
-            res[r] = solve(0, k, r, k, nums, dp);
-        }
+            for(int i=0;i<n;i++){ 
+                ans[target]+=dfs(dfs,i,1%k); 
+            } 
+        } 
 
-        return res;
-    }
+        return ans; 
+    } 
 };
