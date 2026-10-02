@@ -15,28 +15,21 @@ class Solution {
         return st.isEmpty();
     }
 
-    public void dfs(int n, StringBuilder s, int idx) {
+    public void dfs(int n, String s) {
         if(s.length() == 2 * n) {
-            if(check(s.toString())) {
-                ans.add(s.toString());
+            if(check(s)) {
+                ans.add(s);
             }
             return;
         }
 
-        for(int i = idx; i < 2 * n; i++) {
-            s.append('(');
-            dfs(n, s, i + 1);
-            s.deleteCharAt(s.length() - 1);
-
-            s.append(')');
-            dfs(n, s, i + 1);
-            s.deleteCharAt(s.length() - 1);
-        }
+        dfs(n, s + "(");
+        dfs(n, s + ")");
     }
 
     public List<String> generateParenthesis(int n) {
         ans = new ArrayList<>();
-        dfs(n, new StringBuilder(), 0);
+        dfs(n, "");
         return ans;
     }
 }
