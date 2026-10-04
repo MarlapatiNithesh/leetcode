@@ -2,13 +2,13 @@ class Dsu{
     int n;
     int[] par;
     int[] rank;
-    int[] xr;
+    int[] sum;
 
     Dsu(int n){
         this.n=n;
         this.par=new int[n];
-        this.xr=new int[n];
         this.rank=new int[n];
+        this.sum=new int[n];
 
         for(int i=0;i<n;i++){
             par[i]=i;
@@ -24,9 +24,9 @@ class Dsu{
         int[] val=find(p);
 
         par[u]=val[0];
-        xr[u]^=val[1];
+        sum[u]+=val[1];
 
-        return new int[]{par[u],xr[u]};
+        return new int[]{par[u],sum[u]};
     }
 
     public boolean union(int u,int v,int w){
@@ -34,10 +34,7 @@ class Dsu{
         int[] pb=find(v);
 
         if(pa[0]==pb[0]){
-            if((pa[1]^pb[1])==w){
-                return true;
-            }
-            return false;
+            return (pa[1]+w-pb[1])%2==0;
         }
 
         if(rank[pa[0]]<rank[pb[0]]){
@@ -52,7 +49,7 @@ class Dsu{
 
         par[pb[0]]=pa[0];
 
-        xr[pb[0]]=pa[1]^pb[1]^w;
+        sum[pb[0]]=w+pa[1]-pb[1];
 
         if(rank[pa[0]]==rank[pb[0]]){
             rank[pa[0]]++;
